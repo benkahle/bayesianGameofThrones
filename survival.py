@@ -10,7 +10,7 @@ from __future__ import print_function, division
 import numpy as np
 import pandas
 
-#import nsfg
+import nsfg
 import thinkstats2
 import thinkplot
 
@@ -19,12 +19,12 @@ import thinkplot
 Outcome codes from http://www.icpsr.umich.edu/nsfg6/Controller?
 displayPage=labelDetails&fileCode=PREG&section=&subSec=8016&srtLabel=611932
 
-1 LIVE BIRTH    9148
-2 INDUCED ABORTION  1862
-3 STILLBIRTH    120
-4 MISCARRIAGE   1921
-5 ECTOPIC PREGNANCY 190
-6 CURRENT PREGNANCY 352
+1   LIVE BIRTH      9148
+2   INDUCED ABORTION    1862
+3   STILLBIRTH      120
+4   MISCARRIAGE     1921
+5   ECTOPIC PREGNANCY   190
+6   CURRENT PREGNANCY   352
 """
 
 FORMATS = ['pdf', 'eps', 'png']
@@ -252,7 +252,7 @@ def PlotHazard(complete, ongoing):
     thinkplot.Show(xlabel='t (weeks)')
 
 
-def EstimateHazardFunction(complete, ongoing, label=''):
+def EstimateHazardFunction(complete, ongoing, label='', shift=1e-7):
     """Estimates the hazard function by Kaplan-Meier.
 
     http://en.wikipedia.org/wiki/Kaplan%E2%80%93Meier_estimator
@@ -260,6 +260,7 @@ def EstimateHazardFunction(complete, ongoing, label=''):
     complete: list of complete lifetimes
     ongoing: list of ongoing lifetimes
     label: string
+    shift: presumed additional survival of ongoing
     """
     # pmf and sf of complete lifetimes
     n = len(complete)
@@ -267,13 +268,18 @@ def EstimateHazardFunction(complete, ongoing, label=''):
     sf_complete = SurvivalFunction(thinkstats2.Cdf(complete))
 
     # sf for ongoing lifetimes
+    # The shift is a regrettable hack needed to deal with simultaneity.
+    # If a case is complete at some t and another case is ongoing
+    # at t, we presume that the ongoing case exceeds t+shift.
     m = len(ongoing)
-    sf_ongoing = SurvivalFunction(thinkstats2.Cdf(ongoing))
+    cdf = thinkstats2.Cdf(ongoing).Shift(shift)
+    sf_ongoing = SurvivalFunction(cdf)
 
     lams = {}
     for t, ended in sorted(hist_complete.Items()):
         at_risk = ended + n * sf_complete[t] + m * sf_ongoing[t]
         lams[t] = ended / at_risk
+        #print(t, ended, n * sf_complete[t], m * sf_ongoing[t], at_risk)
 
     return HazardFunction(lams, label=label)
 
