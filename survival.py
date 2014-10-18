@@ -264,17 +264,26 @@ def EstimateHazardFunction(complete, ongoing, label=''):
     # pmf and sf of complete lifetimes
     n = len(complete)
     hist_complete = thinkstats2.Hist(complete)
+    thinkplot.Hist(hist_complete)
+    thinkplot.show()
     sf_complete = SurvivalFunction(thinkstats2.Cdf(complete))
-
+    thinkplot.plot(thinkstats2.Cdf(complete),style='bs')
+    print (thinkstats2.Cdf(complete))
+    thinkplot.show()
     # sf for ongoing lifetimes
     m = len(ongoing)
     sf_ongoing = SurvivalFunction(thinkstats2.Cdf(ongoing))
+    # thinkplot.plot(sf_ongoing)
+    # thinkplot.show()
 
     lams = {}
     for t, ended in sorted(hist_complete.Items()):
+
         at_risk = ended + n * sf_complete[t] + m * sf_ongoing[t]
         lams[t] = ended / at_risk
-
+        print ('time',t)
+        print ('at_risk ', at_risk)
+        print ('ended ', ended)
     return HazardFunction(lams, label=label)
 
 
