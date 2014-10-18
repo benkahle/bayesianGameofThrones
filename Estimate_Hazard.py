@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import scipy as sp
+from scipy.stats import exponweib
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas
@@ -156,4 +157,10 @@ thinkplot.show()
 thinkplot.plot(haz)
 thinkplot.show()
 
+arr=[1,1,2,6,7,9,9]
+
+weib=exponweib.fit(arr,1,1) 
+print('Yoyoyo')
+plt.plot(weib)
+plt.show()
 

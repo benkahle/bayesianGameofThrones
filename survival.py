@@ -10,7 +10,7 @@ from __future__ import print_function, division
 import numpy as np
 import pandas
 
-import nsfg
+# import nsfg
 import thinkstats2
 import thinkplot
 
