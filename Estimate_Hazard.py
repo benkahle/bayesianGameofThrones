@@ -38,6 +38,8 @@ for pers in dead:
 	rand=0
 	if (int(pers[8])+int(pers[9])+int(pers[10])+int(pers[11])+int(pers[12]))==1:
 		lifetimes.append(1-rand)
+		pers.append('lifetime')
+		pers.append(1)
 
 	else:
 		start=0
@@ -66,6 +68,8 @@ for pers in dead:
 		# print start, end 
 		# print life, rand, life-rand
 		lifetimes.append(life-rand)
+		pers.append('lifetimes')
+		pers.append(life)
 
 for pers in alive:
 		start=0
@@ -85,7 +89,11 @@ for pers in alive:
 
 		start=5-start
 		introductions.append(start)
-
+		pers.append('age')
+		pers.append(start)
+alive.pop(0)
+# print alive
+# print dead
 # print introductions
 # print min(introductions), max(introductions)
 # print lifetimes
@@ -110,12 +118,12 @@ for num in lifetimes:
 		fives+=1
 
 
-print 'lifetime in books'
-print 'ones', ones
-print 'twos', twos
-print 'threes', threes
-print 'fours', fours
-print 'fives', fives
+# print 'lifetime in books'
+# print 'ones', ones
+# print 'twos', twos
+# print 'threes', threes
+# print 'fours', fours
+# print 'fives', fives
 
 
 ones=0
@@ -137,14 +145,14 @@ for num in introductions:
 	if num==5:
 		fives+=1
 
-print ''
-print 'Lifetime (alive)'
-print 'one', ones
-print 'two', twos
-print 'three', threes
-print 'four', fours
-print 'five', fives
-print 'total', ones+twos+threes+fours+fives
+# print ''
+# print 'Lifetime (alive)'
+# print 'one', ones
+# print 'two', twos
+# print 'three', threes
+# print 'four', fours
+# print 'five', fives
+# print 'total', ones+twos+threes+fours+fives
 
 # lifetimes=[1,2,3,4,5]
 # introductions=[5]
@@ -152,15 +160,28 @@ print 'total', ones+twos+threes+fours+fives
 haz=survival.EstimateHazardFunction(lifetimes, introductions)
 sf=haz.MakeSurvival()
 
-thinkplot.plot(sf)
-thinkplot.show()
-thinkplot.plot(haz)
-thinkplot.show()
+# thinkplot.plot(sf)
+# thinkplot.show()
+# thinkplot.plot(haz)
+# thinkplot.show()
 
-arr=[1,1,2,6,7,9,9]
+arr=np.linspace(1,7,num=100)
 
-weib=exponweib.fit(arr,1,1) 
-print('Yoyoyo')
-plt.plot(weib)
-plt.show()
-
+paramprob=[]
+survprob=[]
+deadprob=[]
+for i in np.linspace(.1,10,100):
+	print i
+	for j in np.linspace(.1,10,100):
+		for pers in dead:
+			age=float(pers[-1])
+			surv=exponweib.cdf(age,i,j)
+			survprob.append(surv)
+		for pers in alive:
+			age=float(pers[-1])
+			surv=exponweib.pdf(age,i,j)
+			deadprob.append(surv)
+		survavg=float(sum(survprob))/len(survprob)		
+		deadavg=float(sum(deadprob))/len(deadprob)	
+		paramprob.append([i,j,survavg,deadavg])	
+print paramprob
