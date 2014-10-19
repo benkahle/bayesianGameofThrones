@@ -221,21 +221,67 @@ for pers in dead:
 thinkplot.Pmfs([k, lam])
 thinkplot.Show()
 
-paramprob=[]
-survprob=[]
-deadprob=[]
-for i in np.linspace(.1,10,100):
-	print(i)
-	for j in np.linspace(.1,2,20):
-		for pers in dead:
-			age=float(pers[-1])
-			surv=exponweib.cdf(age,i,j)
-			survprob.append(surv)
-		for pers in alive:
-			age=float(pers[-1])
-			surv=exponweib.pdf(age,i,j)
-			deadprob.append(surv)
-		survavg=float(sum(survprob))/len(survprob)		
-		deadavg=float(sum(deadprob))/len(deadprob)	
-		paramprob.append([i,j,survavg,deadavg])	
-print(paramprob)
+
+import sweep_out
+
+probpram=sweep_out.loadlist2()
+ivec=[]
+jvec=[]
+survveci=[0] * 100
+deadveci=[0] * 100
+survvecj=[0] * 100
+deadvecj=[0] * 100
+# for entry in probpram:
+# 	ivec.append(entry[0])
+# 	jvec.append(entry[1])
+# 	survvec.append(entry[2])
+# 	deadvec.append(entry[3])
+for entry in probpram:
+	option1=np.linspace(.1,5,100)
+	option2=np.linspace(.1,20,100)
+	for i in range(100):
+		if float(entry[0])==option1[i]:
+			survveci[i]=survveci[i]+entry[2]
+			deadveci[i]=deadveci[i]+entry[3]
+		if float(entry[1])==option2[i]:
+			survvecj[i]=survvecj[i]+entry[2]
+			deadvecj[i]=deadvecj[i]+entry[3]
+plt.plot(option1,survveci)
+plt.plot(option1,deadveci)
+plt.plot(option2,survvecj)
+plt.plot(option2,deadvecj)
+# ivec=np.linspace(.1,10,100)
+# jvec=np.linspace(.1,10,100)
+# plt.plot(ivec,survvec,'x')
+# plt.plot(ivec,deadvec,'o')
+# plt.plot(jvec,survvec,'*')
+# plt.plot(jvec,deadvec,'o')
+plt.show()
+# paramprob=[]
+# survprob=[]
+# deadprob=[]
+# for i in np.linspace(.1,5,100):
+# 	print i
+# 	for j in np.linspace(.1,20,100):
+# 		survprob=[]
+# 		deadprob=[]
+# 		for pers in dead:
+# 			age=float(pers[-1])
+# 			surv=exponweib.cdf(age,i,j)
+# 			survprob.append(surv)
+# 		for pers in alive:
+# 			age=float(pers[-1])
+# 			surv=exponweib.pdf(age,i,j)
+# 			deadprob.append(surv)
+# 		survavg=float(sum(survprob))/len(survprob)		
+# 		deadavg=float(sum(deadprob))/len(deadprob)	
+# 		paramprob.append([i,j,survavg,deadavg])	
+# print paramprob
+# i=5
+# j=1
+# dead=exponweib.pdf(arr,i,j)
+# surv=exponweib.cdf(arr,i,j)
+# plt.plot(arr,1-surv)
+# plt.plot(arr,dead)
+# plt.show()
+
