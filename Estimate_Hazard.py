@@ -6,22 +6,24 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas
 import thinkstats2
+import thinkbayes2
 import survival
 import thinkplot
 import random
+import math
 
 
 data=[]
 dead=[]
 alive=[]
-with open('parsed_characters.csv', 'rb') as dataset:
+with open('parsed_characters.csv', 'r') as dataset:
 	reader=csv.reader(dataset)
 	for row in reader:
 		data.append(row)
 data.pop(0)
 data.pop(0)
 data.pop(0)
-print (len(data))
+# print (len(data))
 for info in data:
 
 	if info[2]!='':
@@ -167,12 +169,64 @@ sf=haz.MakeSurvival()
 
 arr=np.linspace(1,7,num=100)
 
+class GOT(thinkbayes2.Suite, thinkbayes2.Joint):
+
+	def Likelihood(self, data, hypo):
+		age, alive = data
+		k, lam = hypo
+		if alive:
+			prob = exponweib.cdf(age, k, lam)
+		else:
+			prob = exponweib.pdf(age, k, lam)
+		# print(prob)
+		return prob
+
+def Update(k, lam, age, alive):
+	joint = thinkbayes2.MakeJoint(k, lam)
+	suite = GOT(joint)
+	suite.Update((age, alive))
+	k, lam = suite.Marginal(0, label=k.label), suite.Marginal(1, label=lam.label)
+	return k, lam
+
+k = thinkbayes2.MakeUniformPmf(0.1,10,20)
+lam = thinkbayes2.MakeUniformPmf(0.1,2,20)
+
+k.label = 'K'
+lam.label = 'Lam'
+
+print('Updating alives')
+numAlive = len(alive)
+ticks = math.ceil(numAlive/100)
+i = 0
+for pers in alive:
+	if not i%ticks:
+		print('.', end='', flush=True)
+	i += 1
+	age = float(pers[-1])
+	k, lam = Update(k, lam, age, True)
+
+print("Updating deaths")
+numDead = len(dead)
+ticks = math.ceil(numDead/100)
+i = 0
+for pers in dead:
+	if not i%ticks:
+		print('.', end='', flush=True)
+	i += 1	
+	age = float(pers[-1])
+	k, lam = Update(k, lam, age, False)
+
+# k, lam = Update(k, lam, 3, True)
+
+thinkplot.Pmfs([k, lam])
+thinkplot.Show()
+
 paramprob=[]
 survprob=[]
 deadprob=[]
 for i in np.linspace(.1,10,100):
-	print i
-	for j in np.linspace(.1,10,100):
+	print(i)
+	for j in np.linspace(.1,2,20):
 		for pers in dead:
 			age=float(pers[-1])
 			surv=exponweib.cdf(age,i,j)
@@ -184,4 +238,4 @@ for i in np.linspace(.1,10,100):
 		survavg=float(sum(survprob))/len(survprob)		
 		deadavg=float(sum(deadprob))/len(deadprob)	
 		paramprob.append([i,j,survavg,deadavg])	
-print paramprob
+print(paramprob)
