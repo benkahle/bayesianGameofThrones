@@ -154,7 +154,7 @@ for num in introductions:
 # print 'three', threes
 # print 'four', fours
 # print 'five', fives
-# print 'total', ones+twos+threes+fours+fives
+# print('total', ones+twos+threes+fours+fives)
 
 # lifetimes=[1,2,3,4,5]
 # introductions=[5]
@@ -162,10 +162,14 @@ for num in introductions:
 haz=survival.EstimateHazardFunction(lifetimes, introductions)
 sf=haz.MakeSurvival()
 
-# thinkplot.plot(sf)
-# thinkplot.show()
-# thinkplot.plot(haz)
-# thinkplot.show()
+thinkplot.plot(sf)
+plt.xlabel("Age (books)")
+plt.ylabel("Probability of Surviving")
+thinkplot.show()
+thinkplot.plot(haz)
+plt.xlabel("Age (books)")
+plt.ylabel("Percent of Lifes that End")
+thinkplot.show()
 
 arr=np.linspace(1,7,num=100)
 
@@ -175,10 +179,9 @@ class GOT(thinkbayes2.Suite, thinkbayes2.Joint):
 		age, alive = data
 		k, lam = hypo
 		if alive:
-			prob = exponweib.cdf(age, k, lam)
+			prob = 1-exponweib.cdf(age, k, lam)
 		else:
 			prob = exponweib.pdf(age, k, lam)
-		# print(prob)
 		return prob
 
 def Update(k, lam, age, alive):
@@ -188,12 +191,11 @@ def Update(k, lam, age, alive):
 	k, lam = suite.Marginal(0, label=k.label), suite.Marginal(1, label=lam.label)
 	return k, lam
 
-k = thinkbayes2.MakeUniformPmf(1.5,2.75,30)
-lam = thinkbayes2.MakeUniformPmf(1,1.5,30)
+k = thinkbayes2.MakeUniformPmf(.1,6,30)
+lam = thinkbayes2.MakeUniformPmf(.1,6,30)
 
 k.label = 'K'
 lam.label = 'Lam'
-
 print('Updating alives')
 numAlive = len(alive)
 ticks = math.ceil(numAlive/100)
@@ -216,19 +218,27 @@ for pers in dead:
 	age = float(pers[-1])
 	k, lam = Update(k, lam, age, False)
 
-# k, lam = Update(k, lam, 3, True)
 thinkplot.PrePlot(2)
 thinkplot.Pdfs([k, lam])
 thinkplot.Show()
 bestK = k.Mean()
 bestLam = lam.Mean()
-print("K: %d, Lam: %d" % (bestK, bestLam))
+print("K:", bestK, "Lam:", bestLam)
 arr=np.linspace(0,7,num=100)
 weibSurv = exponweib.cdf(arr, bestK, bestLam)
 weibDeath = exponweib.pdf(arr, bestK, bestLam)
-plt.plot(arr, weibSurv)
-plt.plot(arr, weibDeath)
+plt.plot(arr, 1-weibSurv, label="Survival Function")
+plt.plot(arr, weibDeath, label="Probability of Death")
+plt.xlabel('Age (books)')
+plt.ylabel('Rate of Survival or Death')
 plt.show()
+thinkplot.plot(sf, label="Survival Function")
+plt.xlabel('Age (books)')
+plt.ylabel('Rate of Survival or Death')
+plt.show()
+
+joint = MakeJoint(k,lam)
+
 
 
 # import sweep_out
