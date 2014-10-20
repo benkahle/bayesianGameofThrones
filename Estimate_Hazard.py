@@ -188,8 +188,8 @@ def Update(k, lam, age, alive):
 	k, lam = suite.Marginal(0, label=k.label), suite.Marginal(1, label=lam.label)
 	return k, lam
 
-k = thinkbayes2.MakeUniformPmf(0.1,10,20)
-lam = thinkbayes2.MakeUniformPmf(0.1,2,20)
+k = thinkbayes2.MakeUniformPmf(1.5,2.75,30)
+lam = thinkbayes2.MakeUniformPmf(1,1.5,30)
 
 k.label = 'K'
 lam.label = 'Lam'
@@ -217,46 +217,59 @@ for pers in dead:
 	k, lam = Update(k, lam, age, False)
 
 # k, lam = Update(k, lam, 3, True)
-
-thinkplot.Pmfs([k, lam])
+thinkplot.PrePlot(2)
+thinkplot.Pdfs([k, lam])
 thinkplot.Show()
+bestK = k.Mean()
+bestLam = lam.Mean()
+print("K: %d, Lam: %d" % (bestK, bestLam))
+arr=np.linspace(0,7,num=100)
+weibSurv = exponweib.cdf(arr, bestK, bestLam)
+weibDeath = exponweib.pdf(arr, bestK, bestLam)
+plt.plot(arr, weibSurv)
+plt.plot(arr, weibDeath)
+plt.show()
 
 
-import sweep_out
+# import sweep_out
 
-probpram=sweep_out.loadlist2()
-ivec=[]
-jvec=[]
-survveci=[0] * 100
-deadveci=[0] * 100
-survvecj=[0] * 100
-deadvecj=[0] * 100
+# probpram=sweep_out.loadlist2()
+# ivec=[]
+# jvec=[]
+# survveci=[0] * 100
+# deadveci=[0] * 100
+# survvecj=[0] * 100
+# deadvecj=[0] * 100
+# # for entry in probpram:
+# # 	ivec.append(entry[0])
+# # 	jvec.append(entry[1])
+# # 	survvec.append(entry[2])
+# # 	deadvec.append(entry[3])
 # for entry in probpram:
-# 	ivec.append(entry[0])
-# 	jvec.append(entry[1])
-# 	survvec.append(entry[2])
-# 	deadvec.append(entry[3])
-for entry in probpram:
-	option1=np.linspace(.1,5,100)
-	option2=np.linspace(.1,20,100)
-	for i in range(100):
-		if float(entry[0])==option1[i]:
-			survveci[i]=survveci[i]+entry[2]
-			deadveci[i]=deadveci[i]+entry[3]
-		if float(entry[1])==option2[i]:
-			survvecj[i]=survvecj[i]+entry[2]
-			deadvecj[i]=deadvecj[i]+entry[3]
-plt.plot(option1,survveci)
-plt.plot(option1,deadveci)
-plt.plot(option2,survvecj)
-plt.plot(option2,deadvecj)
+# 	option1=np.linspace(.1,5,100)
+# 	option2=np.linspace(.1,20,100)
+# 	for i in range(100):
+# 		if float(entry[0])==option1[i]:
+# 			survveci[i]=survveci[i]+entry[2]
+# 			deadveci[i]=deadveci[i]+entry[3]
+# 		if float(entry[1])==option2[i]:
+# 			survvecj[i]=survvecj[i]+entry[2]
+# 			deadvecj[i]=deadvecj[i]+entry[3]
+# plt.plot(option1,survveci)
+# plt.plot(option1,deadveci)
+# plt.plot(option2,survvecj)
+# plt.plot(option2,deadvecj)
+
+# plt.show()
+
+
 # ivec=np.linspace(.1,10,100)
 # jvec=np.linspace(.1,10,100)
 # plt.plot(ivec,survvec,'x')
 # plt.plot(ivec,deadvec,'o')
 # plt.plot(jvec,survvec,'*')
 # plt.plot(jvec,deadvec,'o')
-plt.show()
+# plt.show()
 # paramprob=[]
 # survprob=[]
 # deadprob=[]
