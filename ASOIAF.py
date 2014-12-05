@@ -20,14 +20,14 @@ colordict={'Stark':['DimGrey','SlateGrey','Silver'],'Baratheon':['DarkOrange','R
 
 
 def Init_List_Struct():
-"""This nested list is how we store characters by attribute.  This function creates the list with labels."""
+	"""This nested list is how we store characters by attribute.  This function creates the list with labels."""
 
 	list_str=[['dead', ['nobles', ['men'], ['women']], ['smallfolk', ['men'], ['women']]], ['alive', ['nobles', ['men'], ['women']], ['smallfolk', ['men'], ['women']]]]
 	return list_str
 
 def house_list(hd,House_Name,info):
-"""This function takes in the house variables, a target house, and the character data.  
-If the character is in the target house, they are sorted by gender, class, and dead/alive status"""
+	"""This function takes in the house variables, a target house, and the character data.  
+	If the character is in the target house, they are sorted by gender, class, and dead/alive status"""
 	if info [1]==House_Name:
 		if info[3]!='': #if they are dead
 			if info[8]=='1':#if they are noble
@@ -66,7 +66,7 @@ If the character is in the target house, they are sorted by gender, class, and d
 				print 'e',info
 
 def PrepData():
-"""This function reads the csv file and sorts the data into house lists"""
+	"""This function reads the csv file and sorts the data into house lists"""
 
 	No=Init_List_Struct()
 	Lannister=Init_List_Struct()
@@ -103,8 +103,8 @@ def PrepData():
 	return hd 
 
 def ages(alive,dead):
-"""For a set of characters, divided into list of alive and dead, this function returns a list of 
-all the ages of the alive characters and the lifespans of the dead characters"""
+	"""For a set of characters, divided into list of alive and dead, this function returns a list of 
+	all the ages of the alive characters and the lifespans of the dead characters"""
 	#Number of chapters in each of the books
 	got=72
 	cok=69
@@ -170,7 +170,7 @@ all the ages of the alive characters and the lifespans of the dead characters"""
 	return introductions,lifetimes
 
 def SurvivalHaz(introductions,lifetimes,plot=False):
-"""Given lists of ages and lifespans, this function calculates the 
+	"""Given lists of ages and lifespans, this function calculates the 
 	Hazard and Survial curves.  If plot is set True, it will plot them."""
 	haz=survival.EstimateHazardFunction(lifetimes, introductions)
 	sf=haz.MakeSurvival()
@@ -190,7 +190,7 @@ def SurvivalHaz(introductions,lifetimes,plot=False):
 class GOT(thinkbayes2.Suite, thinkbayes2.Joint):
 
 	def Likelihood(self, data, hypo):
-	"""Determines how well a given k and lam predict the life/death of a character """
+		"""Determines how well a given k and lam predict the life/death of a character """
 		age, alive = data
 		k, lam = hypo
 		if alive:
@@ -200,7 +200,7 @@ class GOT(thinkbayes2.Suite, thinkbayes2.Joint):
 		return prob
 
 def Update(k, lam, age, alive):
-"""Preforms the Baysian Update and returns the PMFS of k and lam"""
+	"""Preforms the Baysian Update and returns the PMFS of k and lam"""
 	joint = thinkbayes2.MakeJoint(k, lam)
 	suite = GOT(joint)
 	suite.Update((age, alive))
@@ -208,7 +208,7 @@ def Update(k, lam, age, alive):
 	return k, lam
 
 def MakeDistr(introductions, lifetimes,k,lam):
-"""Iterates through all the characters for a given k and lambda.  It then updates
+	"""Iterates through all the characters for a given k and lambda.  It then updates
 	the k and lambda distributions """
 	k.label = 'K'
 	lam.label = 'Lam'
@@ -221,7 +221,7 @@ def MakeDistr(introductions, lifetimes,k,lam):
 	return k,lam
 
 def WriteFile(k,lam,House):
-"""Stores the distributions and percentiles of k and lambda"""
+	"""Stores the distributions and percentiles of k and lambda"""
 
 	intervalk = k.Percentile(5), k.Percentile(95)
 	intervallam = lam.Percentile(5), lam.Percentile(95)
@@ -232,7 +232,7 @@ def WriteFile(k,lam,House):
 	file.close()
 
 def cred_params(house):
-""" Reads a file written by WriteFile and returns the 90 percent credible k and lambda values for that house"""
+	""" Reads a file written by WriteFile and returns the 90 percent credible k and lambda values for that house"""
 	file = open('house_all_alivef.txt', 'r')
 	i=-1
 	#List to add data to
@@ -263,7 +263,7 @@ def cred_params(house):
 			return cred_param[i][1],cred_param[i][2],cred_param[i][3],cred_param[i][4]
 
 def CredIntPlt(sf,kl,kh,ll,lh,house,mk,ml,Title):
-"""Given 90 credible values of k and lambda, the mean values of k and lambda, 
+	"""Given 90 credible values of k and lambda, the mean values of k and lambda, 
 	the survival function, the house color scheme to use, and the plot title, this 
 	function plots the 90 percent credible interval, the best line, and the data 
 	we have"""
@@ -290,9 +290,9 @@ def CredIntPlt(sf,kl,kh,ll,lh,house,mk,ml,Title):
 	plt.title(Title)
 
 def char_lists(hd,house,Gender,Class):
-""" Takes the house you want to work within, as well as the gender and class of the 
-characters you want to select for, and returns a list of the dead ones and a list of
-dead ones. The class is 'Noble' or 'Small' or 'All' , and the gender is 'M', 'F' or 'All'."""
+	""" Takes the house you want to work within, as well as the gender and class of the 
+	characters you want to select for, and returns a list of the dead ones and a list of
+	dead ones. The class is 'Noble' or 'Small' or 'All' , and the gender is 'M', 'F' or 'All'."""
 	cur_house=hd[house]
 	alive1=cur_house[1][1][1] #Noble Men
 	alive2=cur_house[1][1][2] #Noble Women
@@ -343,11 +343,11 @@ dead ones. The class is 'Noble' or 'Small' or 'All' , and the gender is 'M', 'F'
 	return alive,dead
 
 def Specific_Character(House,Gender,Class,ksweep,lamsweep,Title=''):
-"""Knits many function together to produce a prediction for a given house, gender and class
-The house can be any key in hd, class can be 'Noble' or 'Small' or 'All' , and the gender can 
-be 'M' or 'F' or 'All'.  This also needs to make a linspace for k and lambda, so ksweep and 
-lsweep are lists of the form [lower limit, upper limit, number of points].  You can also 
-choose what to title your graph."""
+	"""Knits many function together to produce a prediction for a given house, gender and class
+	The house can be any key in hd, class can be 'Noble' or 'Small' or 'All' , and the gender can 
+	be 'M' or 'F' or 'All'.  This also needs to make a linspace for k and lambda, so ksweep and 
+	lsweep are lists of the form [lower limit, upper limit, number of points].  You can also 
+	choose what to title your graph."""
 	hd=PrepData() #Get the data
 	alive,dead=char_lists(hd,House,Gender,Class) #Sort by alive/dead for given attributes
 	introductions,lifetimes=ages(alive,dead) #Get ages and lifespans
@@ -372,6 +372,6 @@ choose what to title your graph."""
 	plt.show()
 
 
-ksweep=[2.5,7,10] #These will end up as uniform priors
-lsweep=[.001,1,10]
-Specific_Character('Martell','M','Noble',ksweep,lsweep,'Some Characters I Would Like to Die')
+ksweep=[.3,2.5,50] #These will end up as uniform priors
+lsweep=[.001,1,50]
+Specific_Character('Wildling','M','Small',ksweep,lsweep,'Freedom Has a Price')
